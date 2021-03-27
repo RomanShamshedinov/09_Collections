@@ -6,17 +6,25 @@ import java.util.NoSuchElementException;
 public final class MyCollection<E> implements Collection<E> {
 
     private int size;
-    private Object[] elementData = new Object[10];
+    private static final int SO = 10;
+    private static final double SC = 1.5f;
+    private Object[] elementData = new Object[SO];
 
-    public MyCollection(final Object[] elementData) {
-        this.elementData = Arrays.copyOf(elementData, elementData.length);
-        size = elementData.length;
+    public static <E> MyCollection<E> getCollection(final E[] elements) {
+        MyCollection<E> c = new MyCollection<>();
+        for (E e : elements) {
+            c.add(e);
+        }
+        return c;
     }
 
     @Override
     public boolean add(final E e) {
-        if (size == elementData.length) {
-            elementData = Arrays.copyOf(elementData, (int) (size * 1.5f));
+        if (size == elementData.length && size != 0 && size != 1) {
+            elementData = Arrays.copyOf(elementData, (int) (size * SC));
+        }
+        if (size == 0 || size == 1) {
+            elementData = Arrays.copyOf(elementData, (int) (size + 1));
         }
         elementData[size++] = e;
         return true;
@@ -87,10 +95,9 @@ public final class MyCollection<E> implements Collection<E> {
     public boolean remove(final Object o) {
         Object[] copyArray = Arrays.copyOf(elementData, (size));
         for (int i = 0; i < elementData.length; i++) {
-            if (o.equals(elementData[i])) {
+            if (o == (elementData[i])) {
                 if (i == elementData.length - 1) {
-                    //индикация изменения массива elementData
-                    elementData[i] = elementData[i].hashCode();
+                    elementData = Arrays.copyOf(elementData, (--size));
                 } else {
                     for (int j = i + 1; j < elementData.length; j++) {
                         elementData[i] = elementData[j];
@@ -101,10 +108,11 @@ public final class MyCollection<E> implements Collection<E> {
         }
         if (Arrays.equals(elementData, copyArray)) {
             return false;
-        } else {
+        } else if (elementData.length == copyArray.length) {
             size--;
             return true;
         }
+        return true;
     }
 
     @Override
@@ -114,7 +122,7 @@ public final class MyCollection<E> implements Collection<E> {
         for (Object buffer : c) {
             j++;
             for (int i = 0; i < elementData.length; i++) {
-                if (elementData[i].equals(buffer)) {
+                if (elementData[i] == (buffer)) {
                     k++;
                     break;
                 }
@@ -126,7 +134,7 @@ public final class MyCollection<E> implements Collection<E> {
     @Override
     public boolean addAll(final Collection<? extends E> c) {
         if (size == elementData.length) {
-            elementData = Arrays.copyOf(elementData, (int) (size * 1.5f));
+            elementData = Arrays.copyOf(elementData, (int) (size * SC));
         }
         for (E buffer : c) {
             elementData[size++] = buffer;
@@ -146,7 +154,7 @@ public final class MyCollection<E> implements Collection<E> {
                     if (elementData[i] == buffer) {
                         if (i == elementData.length - 1) {
                             //индикация изменения массива elementData
-                            elementData[i] = elementData[i].hashCode();
+                            elementData = Arrays.copyOf(elementData, (--size));
                         } else {
                             for (int j = i + 1; j < elementData.length; j++) {
                                 elementData[i] = elementData[j];
@@ -156,7 +164,7 @@ public final class MyCollection<E> implements Collection<E> {
                         }
                     }
                 }
-                if (!Arrays.equals(elementData, bufferArray)) {
+                if (!Arrays.equals(elementData, bufferArray) && elementData.length == bufferArray.length) {
                     elementData = Arrays.copyOf(elementData, (--size));
                     for (Object el : elementData) {
                         if (el == buffer) {
@@ -169,6 +177,7 @@ public final class MyCollection<E> implements Collection<E> {
         }
         return !Arrays.equals(elementData, copyArray);
     }
+
 
     @Override
     public boolean retainAll(final Collection<?> c) {
@@ -189,7 +198,7 @@ public final class MyCollection<E> implements Collection<E> {
             k = 0; //счетчик
             for (int i = 0; i < copyArray.length; i++) {
                 for (int j = 0; j < bufferArray.length; j++) {
-                    if (copyArray[i].equals(bufferArray[j])) {
+                    if (copyArray[i] == (bufferArray[j])) {
                         elementData[k] = bufferArray[j];
                         k++;
                         break;
@@ -216,6 +225,7 @@ public final class MyCollection<E> implements Collection<E> {
     private class MyIterator<T> implements Iterator<T> {
 
         private int cursor = 0;
+        private boolean check;
 
         @Override
         public boolean hasNext() {
@@ -228,17 +238,19 @@ public final class MyCollection<E> implements Collection<E> {
             if (cursor >= size) {
                 throw new NoSuchElementException();
             }
+            check = true;
             return (T) elementData[cursor++];
         }
 
         @Override
         public void remove() {
-            if (cursor == 0) {
+            if (cursor == 0 || !check) {
                 throw new IllegalStateException();
             }
             for (int i = cursor; i < size; i++) {
                 elementData[i - 1] = elementData[i];
             }
+            check = false;
             size--;
             cursor--;
         }
