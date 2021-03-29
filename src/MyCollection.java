@@ -5,16 +5,17 @@ import java.util.NoSuchElementException;
 
 public final class MyCollection<E> implements Collection<E> {
 
-    private int size;
+    private static int size;
     private static final int SO = 10;
     private static final double SC = 1.5f;
-    private Object[] elementData = new Object[SO];
+    private static Object[] elementData = new Object[SO];
 
     public static <E> MyCollection<E> getCollection(final E[] elements) {
         MyCollection<E> c = new MyCollection<>();
         for (E e : elements) {
             c.add(e);
         }
+        elementData = Arrays.copyOf(elementData, c.size());
         return c;
     }
 
@@ -93,6 +94,10 @@ public final class MyCollection<E> implements Collection<E> {
 
     @Override
     public boolean remove(final Object o) {
+        for (int i = 0; i < elementData.length; i++) {
+            System.out.println(elementData[i]);
+        }
+        System.out.println(" ");
         Object[] copyArray = Arrays.copyOf(elementData, (size));
         for (int i = 0; i < elementData.length; i++) {
             if (o == (elementData[i])) {
@@ -106,6 +111,15 @@ public final class MyCollection<E> implements Collection<E> {
                 }
             }
         }
+        for (int i = 0; i < elementData.length; i++) {
+            System.out.println(elementData[i]);
+        }
+        System.out.println(" ");
+        for (int i = 0; i < copyArray.length; i++) {
+            System.out.println(copyArray[i]);
+        }
+
+
         if (Arrays.equals(elementData, copyArray)) {
             return false;
         } else if (elementData.length == copyArray.length) {
