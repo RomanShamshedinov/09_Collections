@@ -2,7 +2,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         MyCollection myCollection = new MyCollection();
         Integer[] mass = {0, 2, null, 5, 2};
         myCollection = MyCollection.getCollection(mass);

@@ -5,7 +5,7 @@ import java.util.NoSuchElementException;
 
 public final class MyCollection<E> implements Collection<E> {
 
-    private static int size;
+    private int size;
     private static final int SO = 10;
     private static final double SC = 1.5f;
     private static Object[] elementData = new Object[SO];
